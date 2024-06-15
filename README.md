@@ -1,46 +1,108 @@
-# Getting Started with Create React App
+# Домашняя работа № 4
+####  Создать проект с create-react-app;
+Создал:
+```ts
+npx create-react-app hw4_app --template typescript
+```
+#### Добавить элемент input принимающий URL. URL может быть любым адресом API, возвращающим JSON (например, https://catfact.ninja/fact)
+Добавил
+#### Рядом с Input добавить кнопку c текстом "Отправить". При нажатии на кнопку осуществляется вызов API из п.2 при помощи библиотеки axios. Реализоваnm два варианта компоненты:компонент класс, и компонент-функция
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Компонент-класс:
 
-## Available Scripts
+```ts
+import { Component } from "react";
+import axios from 'axios';
 
-In the project directory, you can run:
+interface UrlProps {
+    urlText: string;
+    response: string;
+    errorStr: string;
+    color: string;
+}
+export class UrlClass extends Component<{}, UrlProps> {
+    constructor(props: {}) {
+        super(props);
+        this.state = { urlText: "https://catfact.ninja/fact", response: "", errorStr: "", color: 'black' };
+    }
 
-### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+    handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        this.setState({ urlText: event.target.value });
+    };
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+    handleButtonClick = async () => {
+        try {
+            const apiResponse = await axios.get(this.state.urlText);
+            this.setState({ response: JSON.stringify(apiResponse.data, null, 2) });
+            this.setState({ color: 'black' });
+            console.log(this.state.response);
+        } catch (error) {
+            this.setState({ errorStr: JSON.stringify(error) });
+            this.setState({ color: 'red' });
+            this.setState({ response: this.state.errorStr });
+            console.log(`Ошибка: ${this.state.errorStr}`);
+        }
+    };
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+    render() {
+        return < div>
+            <p><b> Компонент класс</b></p>
+            <input type="text" value={this.state.urlText} onInput={this.handleInputChange} />
+            <button onClick={this.handleButtonClick}>Отправить</button>
+            <div style={{ color: this.state.color }}>{this.state.response}</div>
+        </div>
+    };
+}
+```
 
-### `npm run build`
+Компонент-функция:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```ts
+import axios from 'axios'
+import React, { useState } from 'react';
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+export function UrlFunc() {
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+    const [urlText, setUrl] = useState('https://catfact.ninja/fact');
+    const [response, setResponse] = useState('');
+    const [errorStr, setErrorStr] = useState('');
+    const [color, setColor] = useState('');
+    const handleUpdateUrl = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setUrl(event.target.value);
+    }
 
-### `npm run eject`
+    const handleButtonClick = async () => {
+        try {
+            const apiResponse = await axios.get(urlText);
+            setResponse(JSON.stringify(apiResponse.data, null, 2));
+            setColor('black');
+            console.log(apiResponse.data);
+        } catch (error) {
+            setErrorStr(JSON.stringify(error));
+            setColor('red');
+            setResponse(JSON.stringify(error));
+            console.log(`Ошибка: ${error}`);
+        }
+    };
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+    return <div>
+        <p><b>Компонент функция</b> </p>
+        <input type="text" value={urlText} onInput={handleUpdateUrl} />
+        <button onClick={handleButtonClick}>Отправить</button>
+        <div style={{ color: color }}>{response}</div>
+    </div>
+}
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+#### Результат:
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+<image src="images/res.png" alt="result">
 
-## Learn More
+#### Обработка ошибочных запросов
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+<image src="images/err.png" alt="result">
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+
